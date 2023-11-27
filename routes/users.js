@@ -5,6 +5,33 @@ var router = express.Router();
 var mysql = require("mysql");
 var databases = require("../services/databases");
 /* GET users listing. */
+//  skrypt tworzący tą samą baze z której korzystam
+
+var con = mysql.createConnection({
+  host: "localhost",
+  user: "root",
+  password: "",
+});
+
+con.connect(function (err) {
+  if (err) throw err;
+  console.log("Connected!");
+  con.query("CREATE DATABASE mydb", function (err, result) {
+    if (err) throw err;
+  });
+  con.query(
+    "CREATE TABLE `users`. ( `id` INT(11) NOT NULL AUTO_INCREMENT , `login` VARCHAR(20) NOT NULL , `haslo` VARCHAR(20) NOT NULL , PRIMARY KEY (`id`))",
+    function (err, result) {
+      if (err) throw err;
+    }
+  );
+  con.query(
+    "INSERT INTO `users` (`id`, `login`, `haslo`) VALUES (NULL, 'tomaszito', 'haslo123'), (NULL, 'pieter', '321olsah'), (NULL, 'mateo', 'paswd456'), (NULL, 'goha', '654dwsap')",
+    function (err, result) {
+      if (err) throw err;
+    }
+  );
+});
 
 router.get("/", function (req, res) {
   const response = userService.getAll();
