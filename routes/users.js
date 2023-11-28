@@ -7,40 +7,58 @@ var databases = require("../services/databases");
 /* GET users listing. */
 //  skrypt tworzący tą samą baze z której korzystam
 
-var con = mysql.createConnection({
-  host: "localhost",
-  user: "root",
-  password: "",
-});
+// var con = mysql.createConnection({
+//   host: "localhost",
+//   user: "root",
+//   password: "",
+// });
 
-con.connect(function (err) {
-  if (err) throw err;
-  console.log("Connected!");
-  con.query("CREATE DATABASE mydb", function (err, result) {
-    if (err) throw err;
-  });
-  con.query(
-    "CREATE TABLE `users`. ( `id` INT(11) NOT NULL AUTO_INCREMENT , `login` VARCHAR(20) NOT NULL , `haslo` VARCHAR(20) NOT NULL , PRIMARY KEY (`id`))",
-    function (err, result) {
-      if (err) throw err;
-    }
-  );
-  con.query(
-    "INSERT INTO `users` (`id`, `login`, `haslo`) VALUES (NULL, 'tomaszito', 'haslo123'), (NULL, 'pieter', '321olsah'), (NULL, 'mateo', 'paswd456'), (NULL, 'goha', '654dwsap')",
-    function (err, result) {
-      if (err) throw err;
-    }
-  );
-});
+// con.connect(function (err) {
+//   if (err) throw err;
+//   console.log("Connected!");
+//   con.query("CREATE DATABASE mydb", function (err, result) {
+//     if (err) throw err;
+//   });
+//   con.query(
+//     "CREATE TABLE `users`. ( `id` INT(11) NOT NULL AUTO_INCREMENT , `login` VARCHAR(20) NOT NULL , `haslo` VARCHAR(20) NOT NULL , PRIMARY KEY (`id`))",
+//     function (err, result) {
+//       if (err) throw err;
+//     }
+//   );
+//   con.query(
+//     "INSERT INTO `users` (`id`, `login`, `haslo`) VALUES (NULL, 'tomaszito', 'haslo123'), (NULL, 'pieter', '321olsah'), (NULL, 'mateo', 'paswd456'), (NULL, 'goha', '654dwsap')",
+//     function (err, result) {
+//       if (err) throw err;
+//     }
+//   );
+// });
 
 router.get("/", function (req, res) {
   const response = userService.getAll();
   res.json(JSON.stringify(response));
 });
 router.post("/createUser", function (req, res, next) {
+  // SKRYPT PRZESYŁAJĄCY DANE Z STWORZONEGO UŻYTKOWNIKA
+  var con = mysql.createConnection({
+    host: "localhost",
+    user: "root",
+    password: "",
+    database: "mydb",
+  });
+  con.connect(function (err) {
+    if (err) throw err;
+    con.query(
+      `INSERT INTO users (id, login, haslo) VALUES (NULL, ${myObject.login}, ${myObject.password})`,
+      function (err, result, fields) {
+        if (err) throw err;
+        res.json(JSON.stringify(result));
+      }
+    );
+  });
   const myObject = req.body;
   console.log(myObject);
   return res.status(201).send();
+  // INSERT INTO `users` (`id`, `login`, `haslo`) VALUES (NULL, log, pas)
 });
 router.get("/logins", function (req, res) {
   const myUsers = [
@@ -60,7 +78,6 @@ router.get("/logins2", function (req, res) {
     password: "",
     database: "mydb",
   });
-
   con.connect(function (err) {
     if (err) throw err;
     con.query("SELECT * FROM users", function (err, result, fields) {
