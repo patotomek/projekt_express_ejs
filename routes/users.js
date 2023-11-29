@@ -2,7 +2,7 @@ var userService = require("../services/userService");
 var express = require("express");
 // const allUsers = require("../services/allUsers");
 var router = express.Router();
-var mysql = require("mysql");
+var mysql = require("mysql2");
 var databases = require("../services/databases");
 /* GET users listing. */
 //  skrypt tworzący tą samą baze z której korzystam
@@ -45,19 +45,23 @@ router.post("/createUser", function (req, res, next) {
     password: "",
     database: "mydb",
   });
-  con.connect(function (err) {
-    if (err) throw err;
-    con.query(
-      `INSERT INTO users (id, login, haslo) VALUES (NULL, ${myObject.login}, ${myObject.password})`,
-      function (err, result, fields) {
-        if (err) throw err;
-        res.json(JSON.stringify(result));
-      }
-    );
-  });
   const myObject = req.body;
   console.log(myObject);
-  return res.status(201).send();
+  try {
+    con.connect(function (err) {
+      if (err) return res.status(500).send();
+      con.query(
+        `INSERT INTO users (login, haslo) VALUES ('${myObject.login}', '${myObject.password}')`,
+        function (err, result, fields) {
+          if (err) return res.status(500).send;
+          return res.status(201).send;
+        }
+      );
+    });
+  } catch (error) {
+    return res.status(500).send();
+  }
+
   // INSERT INTO `users` (`id`, `login`, `haslo`) VALUES (NULL, log, pas)
 });
 router.get("/logins", function (req, res) {
