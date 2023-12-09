@@ -83,9 +83,9 @@ router.get("/logins2", function (req, res) {
     database: "mydb",
   });
   con.connect(function (err) {
-    if (err) throw err;
+    if (err) console.log(err);
     con.query("SELECT * FROM users", function (err, result, fields) {
-      if (err) throw err;
+      if (err) console.log(err);
       res.json(JSON.stringify(result));
     });
   });
@@ -97,6 +97,27 @@ router.get("/logins2", function (req, res) {
 router.delete("/:id", function (req, res) {
   const id = req.params.id;
   console.log("delete user", id);
+  var con = mysql.createConnection({
+    host: "localhost",
+    user: "root",
+    password: "",
+    database: "mydb",
+  });
+
+  try {
+    con.connect(function (err) {
+      if (err) return res.status(500).send();
+      con.query(
+        `DELETE FROM users WHERE login = '${id}';`,
+        function (err, result, fields) {
+          if (err) return res.status(500).send;
+          return res.status(201).send;
+        }
+      );
+    });
+  } catch (error) {
+    return res.status(500).send();
+  }
   return res.status(200).send();
 });
 
